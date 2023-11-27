@@ -11,13 +11,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.challenge.techforb.dto.TransactionDTO;
 import com.challenge.techforb.entity.Transaction;
+import com.challenge.techforb.entity.User;
 
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/user")
-public class UserController {
-     @GetMapping("/{id}")
+@RequestMapping("/api/transaction")
+public class TransactionController {
+
+    // @GetMapping()
+    // public ResponseEntity<Array<TransactionDTO>> getTransactions(){
+        
+    //     return ResponseEntity.ok().body();
+    // }
+
+    @GetMapping("/{id}")
     public ResponseEntity<?> getAllTransactionsWithPages(
         @PathVariable(name = "id", required = true) Long id
         ) {
