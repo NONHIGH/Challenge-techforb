@@ -1,4 +1,4 @@
-# Created at 2023-11-30T21:01:03.149
+# Created at 2023-11-30T22:03:53.636
 Boot Manifest-JAR contains absolute paths in classpath 'E:\proyects iope\challenge tech forb\techforb\target\test-classes'
 Hint: <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
 'other' has different root
