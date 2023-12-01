@@ -27,6 +27,7 @@ com\challenge\techforb\controller\TransactionController.class
 com\challenge\techforb\repository\CardRepository.class
 com\challenge\techforb\service\CardService.class
 com\challenge\techforb\auth\jwt\JwtService.class
+com\challenge\techforb\auth\CustomUserDetailsService.class
 com\challenge\techforb\repository\TransactionRepository.class
 com\challenge\techforb\auth\RegisterRequest.class
 com\challenge\techforb\config\SecurityConfig.class
