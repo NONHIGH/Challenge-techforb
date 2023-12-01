@@ -2,6 +2,7 @@ package com.challenge.techforb.jwt;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,22 +26,25 @@ import lombok.RequiredArgsConstructor;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+
+    @Qualifier("customUserDetailsService")
     private final UserDetailsService userDetailsService;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
+        try {
+            
+        
         final String username;
         final String token = getTokenFromRequest(request);
         if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
-
         username = jwtService.getUserFromToken(token);
         if(username!=null){
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            System.out.println(userDetails);
             if(jwtService.isTokenValid(token, userDetails)){
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails,null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -50,8 +54,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
 
-
         filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            System.out.println(e);
+            return;
+        }
 
     }
 

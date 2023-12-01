@@ -31,9 +31,7 @@ public class UserController {
     public ResponseEntity<?> getDataOfUser(HttpServletRequest request) {
         try {
             Cookie[] cookies = request.getCookies();
-            System.out.println(cookies + "soy las cookies");
             if(cookies == null){
-                System.out.println("entre aqui ");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron las credenciales del usuario");
             }
             String jwtCookieValue = Stream.of(cookies)
@@ -44,7 +42,6 @@ public class UserController {
             if (jwtCookieValue != null) {
                 Claims claims = jwtService.decodeJwt(jwtCookieValue);
                 long userId = (long) claims.get("userId", Long.class);
-                System.out.println(userId + "user id");
                 ResponseEntity<UserDTO> userFound = userService.getUserById(userId);
                 if(userFound.getStatusCode() == HttpStatus.OK){
                     return userFound;
