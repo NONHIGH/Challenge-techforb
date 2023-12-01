@@ -1,12 +1,13 @@
-# fly.toml app configuration file generated for techforb-challenge on 2023-11-30T22:35:55-03:00
+# fly.toml app configuration file generated for techforb-chall on 2023-12-01T00:20:46-03:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "techforb-challenge"
+app = "techforb-chall"
 primary_region = "eze"
 
 [build]
+
 
 [http_service]
   internal_port = 8080
@@ -20,8 +21,3 @@ primary_region = "eze"
   cpu_kind = "shared"
   cpus = 1
   memory_mb = 1024
-
-[env]
-  DBHOST = "jdbc:mysql://aws.connect.psdb.cloud/unicomer?sslMode=VERIFY_IDENTITY"
-  USERNAME = "ohsujx8e1igzhdjbdpjx"
-  PASSWORD = "pscale_pw_RP9WIjTSaAbGC7sWDsYOrWrW1py1PH5m1w15asBmPf9"

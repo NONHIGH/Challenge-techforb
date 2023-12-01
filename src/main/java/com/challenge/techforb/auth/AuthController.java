@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "https://unicomer-challenge.vercel.app/")
+@CrossOrigin(originPatterns  = "http://localhost")
 public class AuthController {
 
     
