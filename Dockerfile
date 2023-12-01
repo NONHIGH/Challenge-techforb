@@ -5,4 +5,4 @@ RUN mvn clean package -DskipTests
 FROM openjdk:17.0.1-jdk-slim
 COPY --from=build /target/techforb-0.0.1-SNAPSHOT.jar techforb.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/techforb.jar"]
+ENTRYPOINT ["java","-jar","techforb.jar"]
