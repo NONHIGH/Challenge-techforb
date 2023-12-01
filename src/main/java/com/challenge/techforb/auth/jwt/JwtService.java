@@ -31,6 +31,7 @@ public class JwtService {
                 .builder()
                 .setClaims(extraClaims)
                 .claim("userId", (((User) user).getId()))
+                .claim("user", ((User)user).getUsername())
                 .claim("emailUser", (((User) user).getEmail()))
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))

@@ -103,7 +103,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.name;
+        return this.numberDocument+":"+this.typeDocument;
     }
 
     @Override
@@ -124,5 +124,8 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+    public TypeDocument getTypeDocument(){
+        return this.typeDocument;
     }
 }

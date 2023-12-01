@@ -2,10 +2,12 @@ package com.challenge.techforb.auth;
 
 import java.util.Optional;
 
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Service;
 import com.challenge.techforb.auth.jwt.JwtService;
 import com.challenge.techforb.entity.User;
 import com.challenge.techforb.enums.Role;
+import com.challenge.techforb.enums.TypeDocument;
+
 import com.challenge.techforb.repository.UserRepository;
 
 import jakarta.servlet.http.Cookie;
@@ -31,53 +35,103 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public ResponseEntity<?> login(LoginRequest loginRequest, HttpServletResponse response) {
-        Optional<User> userFound = userRepository.findByTypeDocumentAndNumberDocument(loginRequest.getType_document(), loginRequest.getDocument_number());
-        if (userFound.isPresent()) {
-            User user = userFound.get();
-            try {
-                Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), loginRequest.getPassword()));
+        try {
+            String typeDocument = loginRequest.getType_document().name();
+    
+            Page<User> userFound;
+    
+            switch (typeDocument) {
+                case "DNI":
+                    userFound = userRepository.findByNumberDocumentAndTypeDocument(loginRequest.getDocument_number(), TypeDocument.DNI, PageRequest.of(0, 1));
+                    break;
+                case "PASAPORTE":
+                    userFound = userRepository.findByNumberDocumentAndTypeDocument(loginRequest.getDocument_number(), TypeDocument.PASAPORTE, PageRequest.of(0, 1));
+                    break;
+                default:
+                    throw new IllegalArgumentException("Tipo de documento no reconocido");
+            }
+            if (!userFound.isEmpty()) {
+                User user = userFound.getContent().get(0);
+                Authentication authentication = authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(user.getUsername(), loginRequest.getPassword()));
+
                 String token = jwtService.getToken((UserDetails) authentication.getPrincipal());
                 addTokenToCookie(response, token);
-                return ResponseEntity.ok(AuthResponse.builder()
-                    .token(token).build());
-            } catch (Exception e) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                return ResponseEntity.ok(AuthResponse.builder().token(token).build());
             }
+        } catch (BadCredentialsException e) {
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales inválidas");
+        } catch (IllegalArgumentException e) {
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tipo de documento no reconocido");
+        } catch (Exception e) {
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en la autenticación");
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-
     }
+    
+
+    
 
     public ResponseEntity<Object> register(RegisterRequest registerRequest, HttpServletResponse response) {
-        Optional<User> userFoundOptional = userRepository.findByTypeDocumentAndNumberDocument(registerRequest.getType_document(), registerRequest.getDocument_number());
-        if(userFoundOptional.isPresent()){
-            Object error = new Exception("El número de documento ya está siendo utilizado");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-        }
-        User user = User
-            .builder()
-            .email(registerRequest.getEmail())
-            .numberDocument(registerRequest.getDocument_number())
-            .lastname(registerRequest.getLastname())
-            .name(registerRequest.getName())
-            .role(Role.USER)
-            .password(passwordEncoder.encode(registerRequest.getPassword()))
-            .typeDocument(registerRequest.getType_document())
-            .build();
-        userRepository.save(user);
-        AuthResponse token = AuthResponse.builder().token(jwtService.getToken(user)).build();
-        addTokenToCookie(response, token.getToken());
-        return ResponseEntity.ok(token);
-    }
+        try {
+            String typeDocument = registerRequest.getType_document().name();
 
-    private void addTokenToCookie(HttpServletResponse response, String token){
+            Optional<User> userFoundOptional;
+    
+            switch (typeDocument) {
+                case "DNI":
+                    userFoundOptional = userRepository.findByTypeDocumentAndNumberDocument(TypeDocument.DNI,
+                            registerRequest.getDocument_number());
+                    break;
+                case "PASAPORTE":
+                    userFoundOptional = userRepository.findByTypeDocumentAndNumberDocument(TypeDocument.PASAPORTE,
+                            registerRequest.getDocument_number());
+                    break;
+                default:
+                    throw new IllegalArgumentException("Tipo de documento no reconocido");
+            }
+    
+            if (!userFoundOptional.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("El número de documento ya está siendo utilizado");
+            }
+    
+            User user = User.builder()
+                    .email(registerRequest.getEmail())
+                    .numberDocument(registerRequest.getDocument_number())
+                    .lastname(registerRequest.getLastname())
+                    .name(registerRequest.getName())
+                    .role(Role.USER)
+                    .password(passwordEncoder.encode(registerRequest.getPassword()))
+                    .typeDocument(registerRequest.getType_document())
+                    .build();
+    
+            userRepository.save(user);
+    
+            AuthResponse token = AuthResponse.builder().token(jwtService.getToken(user)).build();
+            addTokenToCookie(response, token.getToken());
+    
+            return ResponseEntity.ok(token);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tipo de documento no reconocido");
+        } catch (Exception e) {
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en el registro");
+        }
+    }
+    
+
+    private void addTokenToCookie(HttpServletResponse response, String token) {
         Cookie cookie = new Cookie("user", "value");
         cookie.setValue(token);
         cookie.setHttpOnly(false);
         cookie.setMaxAge(7 * 24 * 60 * 60);
+        // cookie.setSecure(true);
         cookie.setPath("/");
         response.addCookie(cookie);
         // response.addCookie(Cookie.("cookie", "crunhc"));
     }
-
 }
