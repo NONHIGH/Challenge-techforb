@@ -2,30 +2,20 @@ package com.challenge.techforb.controller;
 
 import java.util.stream.Stream;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.challenge.techforb.auth.jwt.JwtService;
-import com.challenge.techforb.dto.TransactionDTO;
 import com.challenge.techforb.dto.UserDTO;
-import com.challenge.techforb.entity.Transaction;
 import com.challenge.techforb.service.UserService;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -41,7 +31,9 @@ public class UserController {
     public ResponseEntity<?> getDataOfUser(HttpServletRequest request) {
         try {
             Cookie[] cookies = request.getCookies();
+            System.out.println(cookies + "soy las cookies");
             if(cookies == null){
+                System.out.println("entre aqui ");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron las credenciales del usuario");
             }
             String jwtCookieValue = Stream.of(cookies)
@@ -52,7 +44,7 @@ public class UserController {
             if (jwtCookieValue != null) {
                 Claims claims = jwtService.decodeJwt(jwtCookieValue);
                 long userId = (long) claims.get("userId", Long.class);
-                
+                System.out.println(userId + "user id");
                 ResponseEntity<UserDTO> userFound = userService.getUserById(userId);
                 if(userFound.getStatusCode() == HttpStatus.OK){
                     return userFound;

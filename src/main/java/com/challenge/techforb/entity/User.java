@@ -70,9 +70,11 @@ public class User implements UserDetails {
     @NotEmpty
     private String password;
 
+    @Builder.Default
     @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
     private Set<Transaction> transactions = new HashSet<>();
 
+    @Builder.Default
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private Set<Card> cards = new HashSet<>();
 

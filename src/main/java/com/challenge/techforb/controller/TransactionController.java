@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.challenge.techforb.dto.TransactionDTO;
 import com.challenge.techforb.entity.Transaction;
-import com.challenge.techforb.entity.User;
+// import com.challenge.techforb.entity.User;
 
 import jakarta.validation.Valid;
 
