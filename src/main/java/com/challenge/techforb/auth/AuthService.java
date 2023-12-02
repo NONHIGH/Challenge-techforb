@@ -21,7 +21,7 @@ import com.challenge.techforb.enums.TypeDocument;
 
 import com.challenge.techforb.repository.UserRepository;
 
-import jakarta.servlet.http.Cookie;
+// import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -37,15 +37,17 @@ public class AuthService {
     public ResponseEntity<?> login(LoginRequest loginRequest, HttpServletResponse response) {
         try {
             String typeDocument = loginRequest.getType_document().name();
-    
+
             Page<User> userFound;
-    
+
             switch (typeDocument) {
                 case "DNI":
-                    userFound = userRepository.findByNumberDocumentAndTypeDocument(loginRequest.getDocument_number(), TypeDocument.DNI, PageRequest.of(0, 1));
+                    userFound = userRepository.findByNumberDocumentAndTypeDocument(loginRequest.getDocument_number(),
+                            TypeDocument.DNI, PageRequest.of(0, 1));
                     break;
                 case "PASAPORTE":
-                    userFound = userRepository.findByNumberDocumentAndTypeDocument(loginRequest.getDocument_number(), TypeDocument.PASAPORTE, PageRequest.of(0, 1));
+                    userFound = userRepository.findByNumberDocumentAndTypeDocument(loginRequest.getDocument_number(),
+                            TypeDocument.PASAPORTE, PageRequest.of(0, 1));
                     break;
                 default:
                     throw new IllegalArgumentException("Tipo de documento no reconocido");
@@ -71,16 +73,13 @@ public class AuthService {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
-    
-
-    
 
     public ResponseEntity<Object> register(RegisterRequest registerRequest, HttpServletResponse response) {
         try {
             String typeDocument = registerRequest.getType_document().name();
 
             Optional<User> userFoundOptional;
-    
+
             switch (typeDocument) {
                 case "DNI":
                     userFoundOptional = userRepository.findByTypeDocumentAndNumberDocument(TypeDocument.DNI,
@@ -93,12 +92,12 @@ public class AuthService {
                 default:
                     throw new IllegalArgumentException("Tipo de documento no reconocido");
             }
-    
+
             if (!userFoundOptional.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body("El número de documento ya está siendo utilizado");
             }
-    
+
             User user = User.builder()
                     .email(registerRequest.getEmail())
                     .numberDocument(registerRequest.getDocument_number())
@@ -108,12 +107,12 @@ public class AuthService {
                     .password(passwordEncoder.encode(registerRequest.getPassword()))
                     .typeDocument(registerRequest.getType_document())
                     .build();
-    
+
             userRepository.save(user);
-    
+
             AuthResponse token = AuthResponse.builder().token(jwtService.getToken(user)).build();
             addTokenToCookie(response, token.getToken());
-    
+
             return ResponseEntity.ok(token);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tipo de documento no reconocido");
@@ -122,16 +121,8 @@ public class AuthService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en el registro");
         }
     }
-    
 
     private void addTokenToCookie(HttpServletResponse response, String token) {
-        Cookie cookie = new Cookie("user", "value");
-        cookie.setValue(token);
-        cookie.setHttpOnly(false);
-        cookie.setMaxAge(7 * 24 * 60 * 60);
-        // cookie.setSecure(true);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-        // response.addCookie(Cookie.("cookie", "crunhc"));
+        response.setHeader("Set-Cookie", "user=" + token + "; HttpOnly; Secure; SameSite=None; Max-Age=" + 7 * 24 * 60 * 60 + "; Path=/");
     }
 }
