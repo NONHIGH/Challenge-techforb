@@ -49,6 +49,16 @@ public class Transaction {
     @JoinColumn(name = "recipient_card")
     private Card recipientCard;
 
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "recipient_id")
+    private User recipient;
+
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "sender_id")
+    private User sender;
+
     /*
      * incluyo la hora por si las dudas.
      */
