@@ -70,22 +70,30 @@ public class User implements UserDetails {
     @NotEmpty
     private String password;
 
+    // @Builder.Default
+    // @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
+    // private Set<Transaction> transactions = new HashSet<>();
+
     @Builder.Default
-    @OneToMany(cascade = CascadeType.PERSIST, mappedBy = "user")
-    private Set<Transaction> transactions = new HashSet<>();
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+    private Set<Transaction> sentTransactions = new HashSet<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL)
+    private Set<Transaction> receivedTransactions = new HashSet<>();
 
     @Builder.Default
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private Set<Card> cards = new HashSet<>();
 
 
-    public Set<Transaction> getTransactions(){
-        return this.transactions;
-    }
+    // public Set<Transaction> getTransactions(){
+    //     return this.transactions;
+    // }
 
-    public void setTransactions(Set<Transaction> transaction){
-        this.transactions = transaction;
-    }
+    // public void setTransactions(Set<Transaction> transaction){
+    //     this.transactions = transaction;
+    // }
 
     public Set<Card> getCards(){
         return this.cards;

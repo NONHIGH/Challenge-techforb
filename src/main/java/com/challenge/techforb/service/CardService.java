@@ -7,10 +7,13 @@ import com.challenge.techforb.entity.Card;
 
 public interface CardService {
 
-    public ResponseEntity<Card> saveCard(CardDTO newCard ,Long userId);
-    public ResponseEntity<Card> editCard(CardDTO newCard ,Long userId);
-    public ResponseEntity<Card> getCard(Long id);
-    public ResponseEntity<Card> deleteCard(Long id);
+    public ResponseEntity<?> saveCardResponse(CardDTO newCard ,long userId);
+    public ResponseEntity<CardDTO> editCardResponse(CardDTO newCard ,long userId);
+    public ResponseEntity<CardDTO> getCardResponseById(long id);
+    public ResponseEntity<CardDTO> deleteCardResponseById(long id);
+    public Card getCardPrincipalByUserId(long userId);
 
-
+    public Card getCardById(long id) throws Exception ;
+    public boolean deleteCardById(long id);
+    public Card obtainCardWithOutSensitiveData(Card card);
 }

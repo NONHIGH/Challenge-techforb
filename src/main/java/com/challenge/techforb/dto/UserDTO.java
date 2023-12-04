@@ -18,4 +18,5 @@ public class UserDTO {
     private TypeDocument typeDocument;
     private int numberDocument;
     private String email;
+    private String message;
 }
