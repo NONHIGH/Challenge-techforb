@@ -42,7 +42,7 @@ public class UserController {
             if (jwtCookieValue != null) {
                 Claims claims = jwtService.decodeJwt(jwtCookieValue);
                 long userId = (long) claims.get("userId", Long.class);
-                ResponseEntity<UserDTO> userFound = userService.getUserById(userId);
+                ResponseEntity<UserDTO> userFound = userService.getUserDTOById(userId);
                 if(userFound.getStatusCode() == HttpStatus.OK){
                     return userFound;
                 }else{

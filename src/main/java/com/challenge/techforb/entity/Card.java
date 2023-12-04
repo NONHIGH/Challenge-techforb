@@ -1,5 +1,6 @@
 package com.challenge.techforb.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -39,6 +40,7 @@ public class Card {
     private String headline;
 
     @NotNull
+    @Column(unique = true)
     private long numberCard;
 
     @NotNull
@@ -47,10 +49,12 @@ public class Card {
 
     @NotNull
     @Size(min = 3, max = 3, message = "El código de seguridad debe tener 3 dígitos")
-    private int securityCode;
+    private String securityCode;
 
     @NotNull
     private BigDecimal balance;
+
+    private boolean isPrincipal;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name="user_id")
