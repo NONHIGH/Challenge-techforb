@@ -13,7 +13,6 @@ import com.challenge.techforb.dto.TransactionDTO;
 import com.challenge.techforb.dto.TransactionPostDTO;
 import com.challenge.techforb.entity.Card;
 import com.challenge.techforb.entity.Transaction;
-import com.challenge.techforb.enums.TransactionType;
 import com.challenge.techforb.exceptions.transactions.InsufficientFundsException;
 import com.challenge.techforb.repository.TransactionRepository;
 
