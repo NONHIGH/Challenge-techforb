@@ -26,8 +26,8 @@ public class CardServiceImplementation implements CardService {
     @Override
     public ResponseEntity<?> saveCardResponse(CardDTO newCard, long userId) {
         try {
-            if (newCard.getNumberCard() < 1) {
-                throw new RuntimeException("El número de la tarjeta no puede estar vacío");
+            if (newCard.getNumberCard() < 10000000000000L) {
+                throw new RuntimeException("El número de la tarjeta es invalido");
             }
             User user = getUserFromService(userId);
 
@@ -46,7 +46,7 @@ public class CardServiceImplementation implements CardService {
                 return ResponseEntity.status(400).body("Error: Esta tarjeta ya esta registrada");
             }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error en el servidor, contacte a su provedor de servicios" + e.getMessage());
+                    .body("Error en el servidor, contacte a su provedor de servicios: " + e.getMessage());
         }
 
     }
