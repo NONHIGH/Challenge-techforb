@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.challenge.techforb.dto.ResponseDTO;
 import com.challenge.techforb.dto.TransactionDTO;
 import com.challenge.techforb.dto.TransactionPostDTO;
 import com.challenge.techforb.entity.Card;
@@ -90,7 +91,7 @@ public class TransactionServiceImplementation implements TransactionService {
             Page<TransactionDTO> transactionsDTO = userTransactions.map(this::mapToDTO);
             return ResponseEntity.ok().body(transactionsDTO);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en el servidor: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseDTO.builder().message("Error en el servidor: " + e.getMessage()).build());
         }
     }
 
