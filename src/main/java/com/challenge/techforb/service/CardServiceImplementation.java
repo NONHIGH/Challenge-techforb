@@ -1,6 +1,8 @@
 package com.challenge.techforb.service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,9 @@ public class CardServiceImplementation implements CardService {
     @Override
     public ResponseEntity<?> saveCardResponse(CardDTO newCard, long userId) {
         try {
+            if (newCard.getNumberCard() < 1) {
+                throw new RuntimeException("El número de la tarjeta no puede estar vacío");
+            }
             User user = getUserFromService(userId);
 
             Card cardToSave = buildCardPrincipalOrElse(newCard, user);
@@ -37,8 +42,11 @@ public class CardServiceImplementation implements CardService {
         }
 
         catch (Exception e) {
+            if (e.getMessage().contains("[Duplicate entry")) {
+                return ResponseEntity.status(400).body("Error: Esta tarjeta ya esta registrada");
+            }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error en el servidor, contacte a su provedor de servicios");
+                    .body("Error en el servidor, contacte a su provedor de servicios" + e.getMessage());
         }
 
     }
@@ -62,6 +70,10 @@ public class CardServiceImplementation implements CardService {
                     .message("Error al intentar actualizar la tarjeta: " + e.getMessage())
                     .build());
         } catch (Exception e) {
+            if (e.getMessage().contains("[Duplicate entry")) {
+                return ResponseEntity.status(400)
+                        .body(CardDTO.builder().message("Error: Esta tarjeta ya esta en uso").build());
+            }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(CardDTO.builder()
                     .message(e.getMessage())
                     .build());
@@ -181,7 +193,6 @@ public class CardServiceImplementation implements CardService {
 
     private Card buildCardPrincipalOrElse(CardDTO cardToBuild, User user) {
         boolean isFirst = user.getCards().isEmpty();
-        System.out.println(isFirst + " " + user.getCards());
         return Card.builder()
                 .balance(cardToBuild.getBalance())
                 .dueDate(cardToBuild.getDueDate())
@@ -191,5 +202,32 @@ public class CardServiceImplementation implements CardService {
                 .isPrincipal(isFirst)
                 .numberCard(cardToBuild.getNumberCard())
                 .build();
+    }
+
+    @Override
+    public ResponseEntity<?> getAllCardsOfUser(long id) {
+        try {
+            userService.getUserById(id);
+            List<Card> cardsFounds = cardRepository.findAllByUserId(id);
+            List<CardDTO> cards = cardsFounds.stream().map(this::mapToDTO).collect(Collectors.toList());
+            return ResponseEntity.ok().body(cards);
+        }
+        catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error al buscar las tarjetas: " + e.getMessage());
+        }
+        catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en el servidor" + e.getMessage());
+        }
+    }
+
+    private CardDTO mapToDTO(Card card){
+        return CardDTO.builder()
+                        .balance(card.getBalance())
+                        .dueDate(card.getDueDate())
+                        .headline(card.getHeadline())
+                        .id(card.getId())
+                        .numberCard(card.getNumberCard())
+                        .isPrincipal(card.isPrincipal())
+                        .build();
     }
 }

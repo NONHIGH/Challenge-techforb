@@ -26,6 +26,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -55,7 +56,7 @@ public class User implements UserDetails {
 
     Role role;
 
-    @NotEmpty
+    @NotNull(message = "El numero de documento no puede estar vacío")
     @Enumerated(EnumType.STRING)
     private TypeDocument typeDocument;
 

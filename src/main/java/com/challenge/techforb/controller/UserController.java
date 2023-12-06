@@ -30,17 +30,9 @@ public class UserController {
     @GetMapping()
     public ResponseEntity<?> getDataOfUser(HttpServletRequest request) {
         try {
-            Cookie[] cookies = request.getCookies();
-            if(cookies == null){
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontraron las credenciales del usuario");
-            }
-            String jwtCookieValue = Stream.of(cookies)
-                    .filter(cookie -> "user".equals(cookie.getName()))
-                    .findFirst()
-                    .map(Cookie::getValue)
-                    .orElse(null);
-            if (jwtCookieValue != null) {
-                Claims claims = jwtService.decodeJwt(jwtCookieValue);
+            Cookie jwtCookie = getJwtCookie(request);
+            if (jwtCookie != null) {
+                Claims claims = jwtService.decodeJwt(jwtCookie.getValue());
                 long userId = (long) claims.get("userId", Long.class);
                 ResponseEntity<UserDTO> userFound = userService.getUserDTOById(userId);
                 if(userFound.getStatusCode() == HttpStatus.OK){
@@ -58,22 +50,14 @@ public class UserController {
         }
     }
 
-    // @PostMapping("/{id}")
-    // public ResponseEntity<Transaction> createTransaction(
-    // @Valid
-    // @RequestBody(required = true) TransactionDTO newTransaction,
-    // @PathVariable(name = "id", required = true) Long idUser
-    // ) {
-    // return null;
-    // }
-
-    // @PutMapping("/{id}")
-    // public ResponseEntity<Transaction> modifyTransaction(
-    // @Valid
-    // @RequestBody(required = true) TransactionDTO transactionDTO,
-    // @PathVariable(name = "id") Long id
-    // ){
-
-    // return null;
-    // }
+    public Cookie getJwtCookie(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        if(cookies == null){
+            return null;
+        }
+        return Stream.of(cookies)
+                        .filter(cookie -> "user".equals(cookie.getName()))
+                        .findFirst()
+                        .orElse(null);
+    }
 }

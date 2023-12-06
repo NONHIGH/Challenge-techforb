@@ -41,7 +41,6 @@ public class TransactionServiceImplementation implements TransactionService {
                 throw new InsufficientFundsException(
                         "El usuario no tiene los fondos suficientes para realizar la operación");
             }
-            // realizar la operación.
             Transaction transaction = Transaction.builder()
                     .amount(transactionData.getAmount())
                     .date(new Date())
@@ -57,6 +56,7 @@ public class TransactionServiceImplementation implements TransactionService {
                     .senderCard(cardService.obtainCardWithOutSensitiveData(senderCardFound))
                     .recipientCard(cardService.obtainCardWithOutSensitiveData(recipiendCardFound))
                     .build());
+                    
         } catch (InsufficientFundsException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(TransactionDTO.builder()
                     .message(errorTransaction + e.getMessage())
@@ -84,10 +84,14 @@ public class TransactionServiceImplementation implements TransactionService {
     }
 
     @Override
-    public ResponseEntity<Page<TransactionDTO>> getUserTransactionsResponse(long idUser, Pageable pages) {
-        // TODO Auto-generated method stub
-
-        throw new UnsupportedOperationException("Unimplemented method 'getUserTransactionsResponse'");
+    public ResponseEntity<?> getUserTransactionsResponse(long idUser, Pageable pages) {
+        try {
+            Page<Transaction> userTransactions = transactionRepository.findAllBySenderCard_User_IdOrRecipientCard_User_Id(idUser, idUser, pages);
+            Page<TransactionDTO> transactionsDTO = userTransactions.map(this::mapToDTO);
+            return ResponseEntity.ok().body(transactionsDTO);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en el servidor: " + e.getMessage());
+        }
     }
 
     @Override
