@@ -38,12 +38,12 @@ public class CardServiceImplementation implements CardService {
                     .build());
 
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(CardDTO.builder().message("Error al almacenar la tarjeta: " +e.getMessage()).build());
         }
 
         catch (Exception e) {
             if (e.getMessage().contains("[Duplicate entry")) {
-                return ResponseEntity.status(400).body("Error: Esta tarjeta ya esta registrada");
+                return ResponseEntity.status(400).body(CardDTO.builder().message("Error al guardar la tarjeta : Esta tarjeta ya esta registrada").build());
             }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error en el servidor, contacte a su provedor de servicios: " + e.getMessage());

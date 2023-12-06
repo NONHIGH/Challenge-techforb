@@ -33,27 +33,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         try {
-            
-        
-        final String username;
-        final String token = getTokenFromCookie(request);
-        if (token == null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        username = jwtService.getUserFromToken(token);
-        if(username!=null){
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            if(jwtService.isTokenValid(token, userDetails)){
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails,null, userDetails.getAuthorities());
-                authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            final String username;
+            final String token = getTokenFromCookie(request);
+            if (token == null) {
+                filterChain.doFilter(request, response);
+                return;
             }
-        }
+            username = jwtService.getUserFromToken(token);
+            if (username != null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                if (jwtService.isTokenValid(token, userDetails)) {
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities());
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                } else {
+                    Cookie cookie = new Cookie("user", null);
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                    Cookie cookie2 = new Cookie("session", null);
+                    cookie2.setMaxAge(0);
+                    cookie2.setPath("/");
+                    response.addCookie(cookie2);
+                    return;
+                }
+            }
 
-        filterChain.doFilter(request, response);
+            filterChain.doFilter(request, response);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return;
@@ -63,9 +72,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private String getTokenFromCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
-        if(cookies != null){
-            for(Cookie cookie: cookies){
-                if("user".equals(cookie.getName())){
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("user".equals(cookie.getName())) {
                     return cookie.getValue();
                 }
             }
