@@ -121,6 +121,7 @@ public class AuthService {
     }
 
     private void addTokenToCookie(HttpServletResponse response, String token) {
-        response.setHeader("Set-Cookie", "user=" + token + "; Secure; SameSite=None; Max-Age=" + 7 * 24 * 60 * 60 + "; Path=/");
+        response.setHeader("Set-Cookie", "user=" + token + "; HttpOnly; Secure; SameSite=None; Max-Age=" + 7 * 24 * 60 * 60 + "; Path=/");
     }
+    
 }
