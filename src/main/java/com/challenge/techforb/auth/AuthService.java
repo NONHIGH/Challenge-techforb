@@ -77,7 +77,6 @@ public class AuthService {
     public ResponseEntity<Object> register(RegisterRequest registerRequest, HttpServletResponse response) {
         try {
             String typeDocument = registerRequest.getType_document().name();
-
             Optional<User> userFoundOptional;
 
             switch (typeDocument) {
@@ -117,12 +116,12 @@ public class AuthService {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Tipo de documento no reconocido");
         } catch (Exception e) {
-
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en el registro");
         }
     }
 
     private void addTokenToCookie(HttpServletResponse response, String token) {
-        response.setHeader("Set-Cookie", "user=" + token + ";  Secure; SameSite=None; Max-Age=" + 7 * 24 * 60 * 60 + "; Path=/");
+        response.setHeader("Set-Cookie", "user=" + token + "; HttpOnly; Secure; SameSite=None; Max-Age=" + 7 * 24 * 60 * 60 + "; Path=/");
     }
+    
 }
