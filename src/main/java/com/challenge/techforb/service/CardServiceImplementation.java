@@ -170,9 +170,7 @@ public class CardServiceImplementation implements CardService {
     public Card getCardPrincipalByUserId(long userId) {
         try {
             User user = getUserFromService(userId);
-            System.out.println(user);
             Optional<Card> principalCard = cardRepository.findByUserAndIsPrincipalTrue(user);
-            System.out.println(principalCard);
             if (!principalCard.isPresent()) {
                 throw new EntityNotFoundException(user.getEmail() + " " + user.getName()
                         + "no tiene una tarjeta principal a la que depositar dinero");
