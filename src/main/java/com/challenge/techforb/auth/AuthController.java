@@ -35,22 +35,22 @@ public class AuthController {
 
     @DeleteMapping(value = "logout")
     public ResponseEntity<?> logout(
-        HttpServletRequest request,
-        HttpServletResponse response
-        ) {
-            Cookie[] cookies = request.getCookies();
-            for (Cookie cookie : cookies) {
-                System.out.println("nombre de las cookies ===> "+ cookie.getName());
-                if("user".equals(cookie.getName()) || "session".equals(cookie.getName())){
-                    cookie.setValue(null);
-                    cookie.setMaxAge(0);
-                    cookie.setPath("/");
-                    response.addCookie(cookie);
-                    System.out.println("cookie con el nombrede : ===> "+ cookie.getName() + " fue eliminada");
-                }
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            System.out.println("nombre de las cookies ===> " + cookie.getName());
+            if ("user".equals(cookie.getName()) || "session".equals(cookie.getName())) {
+                cookie.setValue(null);
+                cookie.setMaxAge(0);
+                cookie.setPath("/");
+                System.out.println("cookie con el nombrede : ===> " + cookie.getName() + " fue eliminada");
+                response.setHeader("Set-Cookie", String.format("%s=%s; Max-Age=0; Path=/; SameSite=None; Secure", cookie.getName(), ""));
+                System.out.println(response.getHeaderNames());
             }
-            System.out.println("entre a las cookies");
-            return ResponseEntity.ok(ResponseDTO.builder().message("Cookie eliminada correctamente").build());
-        
+        }
+        System.out.println("entre a las cookies");
+        return ResponseEntity.ok(ResponseDTO.builder().message("Cookie eliminada correctamente").build());
+
     }
 }
