@@ -1,7 +1,6 @@
 package com.challenge.techforb.auth;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.challenge.techforb.dto.ResponseDTO;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -34,24 +34,23 @@ public class AuthController {
     }
 
     @DeleteMapping(value = "logout")
-    public ResponseEntity<?> logout(HttpServletResponse response,
-            @CookieValue(name = "user", required = false) Cookie cookie,
-            @CookieValue(name = "session", required = false) Cookie cookieS
-            
-            ) {
-        if (cookie != null) {
-            cookie.setValue("");
-            cookieS.setValue("");
-            cookie.setMaxAge(0);
-            cookieS.setMaxAge(0);
-            cookie.setPath("/");
-            cookieS.setPath("/");
-            response.addCookie(cookie);
-            response.addCookie(cookieS);
-            System.out.println("entre aqui, son la cookies" + cookie + cookieS);
+    public ResponseEntity<?> logout(
+        HttpServletRequest request,
+        HttpServletResponse response
+        ) {
+            Cookie[] cookies = request.getCookies();
+            for (Cookie cookie : cookies) {
+                System.out.println("nombre de las cookies ===> "+ cookie.getName());
+                if("user".equals(cookie.getName()) || "session".equals(cookie.getName())){
+                    cookie.setValue(null);
+                    cookie.setMaxAge(0);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                    System.out.println("cookie con el nombrede : ===> "+ cookie.getName() + " fue eliminada");
+                }
+            }
+            System.out.println("entre a las cookies");
             return ResponseEntity.ok(ResponseDTO.builder().message("Cookie eliminada correctamente").build());
-        } else {
-            return ResponseEntity.ok(ResponseDTO.builder().message("No se encontró la cookie para eliminar").build());
-        }
+        
     }
 }
