@@ -12,6 +12,6 @@ public interface TransactionService {
 
     public ResponseEntity<TransactionDTO> getTransactionByIdResponse(long transactionId);
 
-    public ResponseEntity<TransactionDTO> carryOutTheTransaction(TransactionPostDTO transactionData);
+    public ResponseEntity<TransactionDTO> carryOutTheTransaction(TransactionPostDTO transactionData, long userId);
 
 }

@@ -48,7 +48,7 @@ public class AuthController {
             cookieS.setPath("/");
             response.addCookie(cookie);
             response.addCookie(cookieS);
-
+            System.out.println("entre aqui, son la cookies" + cookie + cookieS);
             return ResponseEntity.ok(ResponseDTO.builder().message("Cookie eliminada correctamente").build());
         } else {
             return ResponseEntity.ok(ResponseDTO.builder().message("No se encontró la cookie para eliminar").build());
