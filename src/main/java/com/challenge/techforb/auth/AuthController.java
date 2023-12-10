@@ -39,17 +39,13 @@ public class AuthController {
             HttpServletResponse response) {
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
-            System.out.println("nombre de las cookies ===> " + cookie.getName());
             if ("user".equals(cookie.getName()) || "session".equals(cookie.getName())) {
                 cookie.setValue(null);
                 cookie.setMaxAge(0);
                 cookie.setPath("/");
-                System.out.println("cookie con el nombrede : ===> " + cookie.getName() + " fue eliminada");
                 response.setHeader("Set-Cookie", String.format("%s=%s; Max-Age=0; Path=/; SameSite=None; Secure", cookie.getName(), ""));
-                System.out.println(response.getHeaderNames());
             }
         }
-        System.out.println("entre a las cookies");
         return ResponseEntity.ok(ResponseDTO.builder().message("Cookie eliminada correctamente").build());
 
     }

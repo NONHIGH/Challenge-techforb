@@ -40,9 +40,7 @@ public class TransactionServiceImplementation implements TransactionService {
         try {
             Card recipiendCardFound = cardService.getCardById(transactionData.getIdCardSender());
             User user = userService.getUserById(userId);
-            System.out.println("soy el usuario =====>>  " + user + " <=========");
             Card senderCardFound = cardService.getCardPrincipalByUserId(transactionData.getIdUserReceveidAmount());
-            System.out.println(senderCardFound);
 
             if (recipiendCardFound.getBalance().compareTo(transactionData.getAmount()) < 0) {
                 throw new InsufficientFundsException(
