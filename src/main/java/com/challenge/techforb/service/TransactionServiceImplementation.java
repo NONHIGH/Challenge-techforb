@@ -14,6 +14,7 @@ import com.challenge.techforb.dto.TransactionDTO;
 import com.challenge.techforb.dto.TransactionPostDTO;
 import com.challenge.techforb.entity.Card;
 import com.challenge.techforb.entity.Transaction;
+import com.challenge.techforb.entity.User;
 import com.challenge.techforb.exceptions.transactions.InsufficientFundsException;
 import com.challenge.techforb.repository.TransactionRepository;
 
@@ -27,16 +28,21 @@ public class TransactionServiceImplementation implements TransactionService {
 
     private final TransactionRepository transactionRepository;
 
+    private final UserService userService;
+
     private final CardService cardService;
 
     private final String errorTransaction = "Error al realizar la transacción: ";
 
     @Override
     @Transactional
-    public ResponseEntity<TransactionDTO> carryOutTheTransaction(TransactionPostDTO transactionData) {
+    public ResponseEntity<TransactionDTO> carryOutTheTransaction(TransactionPostDTO transactionData, long userId) {
         try {
             Card recipiendCardFound = cardService.getCardById(transactionData.getIdCardSender());
+            User user = userService.getUserById(userId);
+            System.out.println("soy el usuario =====>>  " + user + " <=========");
             Card senderCardFound = cardService.getCardPrincipalByUserId(transactionData.getIdUserReceveidAmount());
+            System.out.println(senderCardFound);
 
             if (recipiendCardFound.getBalance().compareTo(transactionData.getAmount()) < 0) {
                 throw new InsufficientFundsException(
@@ -57,7 +63,7 @@ public class TransactionServiceImplementation implements TransactionService {
                     .senderCard(cardService.obtainCardWithOutSensitiveData(senderCardFound))
                     .recipientCard(cardService.obtainCardWithOutSensitiveData(recipiendCardFound))
                     .build());
-                    
+
         } catch (InsufficientFundsException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(TransactionDTO.builder()
                     .message(errorTransaction + e.getMessage())
@@ -87,11 +93,13 @@ public class TransactionServiceImplementation implements TransactionService {
     @Override
     public ResponseEntity<?> getUserTransactionsResponse(long idUser, Pageable pages) {
         try {
-            Page<Transaction> userTransactions = transactionRepository.findAllBySenderCard_User_IdOrRecipientCard_User_Id(idUser, idUser, pages);
+            Page<Transaction> userTransactions = transactionRepository
+                    .findAllBySenderCard_User_IdOrRecipientCard_User_Id(idUser, idUser, pages);
             Page<TransactionDTO> transactionsDTO = userTransactions.map(this::mapToDTO);
             return ResponseEntity.ok().body(transactionsDTO);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ResponseDTO.builder().message("Error en el servidor: " + e.getMessage()).build());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ResponseDTO.builder().message("Error en el servidor: " + e.getMessage()).build());
         }
     }
 

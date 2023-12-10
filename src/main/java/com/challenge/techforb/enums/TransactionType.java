@@ -1,7 +1,7 @@
 package com.challenge.techforb.enums;
 
 public enum TransactionType {
-    EXTRACCIÓN,
+    EXTRACCION,
     DEPOSITO,
     TRANSFERENCIA
 }

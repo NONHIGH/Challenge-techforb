@@ -13,7 +13,7 @@ import lombok.Data;
 @Data
 @Builder
 public class TransactionDTO {
-    
+
     private long id;
     private BigDecimal amount;
     private TransactionType transactionType;

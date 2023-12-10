@@ -30,8 +30,9 @@ public class CardServiceImplementation implements CardService {
                 throw new RuntimeException("El número de la tarjeta es invalido");
             }
             User user = getUserFromService(userId);
-
-            Card cardToSave = buildCardPrincipalOrElse(newCard, user);
+            long cardCount = cardRepository.countByUser(user);
+            boolean hasPrincipalCard = cardCount > 0;
+            Card cardToSave = buildCardPrincipalOrElse(newCard, user, hasPrincipalCard);
             cardRepository.save(cardToSave);
             return ResponseEntity.ok().body(CardDTO.builder()
                     .message("Tarjeta guardada")
@@ -169,7 +170,9 @@ public class CardServiceImplementation implements CardService {
     public Card getCardPrincipalByUserId(long userId) {
         try {
             User user = getUserFromService(userId);
+            System.out.println(user);
             Optional<Card> principalCard = cardRepository.findByUserAndIsPrincipalTrue(user);
+            System.out.println(principalCard);
             if (!principalCard.isPresent()) {
                 throw new EntityNotFoundException(user.getEmail() + " " + user.getName()
                         + "no tiene una tarjeta principal a la que depositar dinero");
@@ -191,15 +194,14 @@ public class CardServiceImplementation implements CardService {
                 .build();
     }
 
-    private Card buildCardPrincipalOrElse(CardDTO cardToBuild, User user) {
-        boolean isFirst = user.getCards().isEmpty();
+    private Card buildCardPrincipalOrElse(CardDTO cardToBuild, User user, boolean hasPrincipalCard) {
         return Card.builder()
                 .balance(cardToBuild.getBalance())
                 .dueDate(cardToBuild.getDueDate())
                 .headline(cardToBuild.getHeadline())
                 .securityCode(cardToBuild.getSecurityCode())
                 .user(user)
-                .isPrincipal(isFirst)
+                .isPrincipal(hasPrincipalCard)
                 .numberCard(cardToBuild.getNumberCard())
                 .build();
     }

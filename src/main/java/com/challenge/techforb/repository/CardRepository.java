@@ -14,4 +14,6 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     Optional<Card> findByUserAndIsPrincipalTrue(User user);
 
     List<Card> findAllByUserId(long userId);
+
+    long countByUser(User user);
 }

@@ -38,6 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             final String token = getTokenFromCookie(request);
             if (token == null) {
                 filterChain.doFilter(request, response);
+                System.out.println("entro aqui" + token  + " soy el token");
                 return;
             }
             username = jwtService.getUserFromToken(token);
